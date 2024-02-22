@@ -23,19 +23,14 @@ fs.emptyDirSync(path.join(process.cwd(), 'assets'))
 
 module.exports = {
   mode: 'development',
-  entry: {
-    app: ['./client/index-app.js', 'webpack-hot-middleware/client'],
-    legacy: ['./client/index-legacy.js', 'webpack-hot-middleware/client'],
-    setup: ['./client/index-setup.js', 'webpack-hot-middleware/client']
-  },
+  entry: path.join(process.cwd(), './client/themes/default/components/page-nav-tree-params.vue'),
   output: {
     path: path.join(process.cwd(), 'assets'),
     publicPath: '/_assets/',
-    filename: 'js/[name].js',
-    chunkFilename: 'js/[name].js',
-    globalObject: 'this',
-    pathinfo: true,
-    crossOriginLoading: 'use-credentials'
+    filename: 'twiki-frontend-addins.js',
+    libraryTarget: 'umd',
+    library: 'twiki-frontend-addins',
+    umdNamedDefine: true
   },
   module: {
     rules: [
@@ -190,33 +185,6 @@ module.exports = {
       startYear: 2017,
       endYear: (new Date().getFullYear()) + 5
     }),
-    new CopyWebpackPlugin({
-      patterns: [
-        { from: 'client/static' },
-        { from: './node_modules/prismjs/components', to: 'js/prism' }
-      ]
-    }),
-    new HtmlWebpackPlugin({
-      template: 'dev/templates/master.pug',
-      filename: '../server/views/master.pug',
-      hash: false,
-      inject: false,
-      excludeChunks: ['setup', 'legacy']
-    }),
-    new HtmlWebpackPlugin({
-      template: 'dev/templates/legacy.pug',
-      filename: '../server/views/legacy/master.pug',
-      hash: false,
-      inject: false,
-      excludeChunks: ['setup', 'app']
-    }),
-    new HtmlWebpackPlugin({
-      template: 'dev/templates/setup.pug',
-      filename: '../server/views/setup.pug',
-      hash: false,
-      inject: false,
-      excludeChunks: ['app', 'legacy']
-    }),
     new HtmlWebpackPugPlugin(),
     new WebpackBarPlugin({
       name: 'Client Assets'
@@ -235,20 +203,9 @@ module.exports = {
     namedModules: true,
     namedChunks: true,
     splitChunks: {
-      cacheGroups: {
-        default: {
-          minChunks: 2,
-          priority: -20,
-          reuseExistingChunk: true
-        },
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          minChunks: 2,
-          priority: -10
-        }
-      }
+      chunks: 'all'
     },
-    runtimeChunk: 'single'
+    runtimeChunk: false
   },
   resolve: {
     mainFields: ['browser', 'main', 'module'],

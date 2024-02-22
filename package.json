@@ -2,8 +2,10 @@
   "name": "twiki-frontend-addins",
   "version": "1.0.0",
   "description": "Addins for twiki frontend",
-  "main": "index.js",
+  "main": "assets/twiki-frontend-addins.js",
   "scripts": {
+    "dev": "node dev",
+    "build": "webpack --profile --config dev/webpack/webpack.prod.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,6 +25,12 @@
   "homepage": "https://github.com/TuleshDev/twiki-frontend-addins#readme",
   "engines": {
     "node": ">=10.12"
+  },
+  "files": [
+    "assets/**/"
+  ],
+  "dependencies": {
+    "pug": "3.0.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.1",
