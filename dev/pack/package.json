@@ -1,0 +1,89 @@
+{
+  "name": "twiki-frontend-addins",
+  "version": "1.0.0",
+  "description": "Addins for twiki frontend",
+  "main": "assets/twiki-frontend-addins.js",
+  "scripts": {
+    "dev": "node dev",
+    "build": "webpack --profile --config dev/webpack/webpack.prod.js",
+    "postpack": "node dev/pack/postpack",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TuleshDev/twiki-frontend-addins.git"
+  },
+  "keywords": [
+    "twiki",
+    "frontend",
+    "addins"
+  ],
+  "author": "TuleshDev",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/TuleshDev/twiki-frontend-addins/issues"
+  },
+  "homepage": "https://github.com/TuleshDev/twiki-frontend-addins#readme",
+  "engines": {
+    "node": ">=10.12"
+  },
+  "files": [
+    "assets/**/"
+  ],
+  "devDependencies": {
+    "vue": "2.6.14",
+    "vuetify": "2.3.15"
+  },
+  "peerDependencies": {
+    "vue": "2.6.14",
+    "vuetify": "2.3.15"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 major versions",
+    "Firefox ESR",
+    "not ie > 0",
+    "not ie_mob > 0",
+    "not android > 0",
+    "not dead"
+  ],
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {},
+      "cssnano": {
+        "preset": [
+          "default",
+          {
+            "discardComments": {
+              "removeAll": true
+            }
+          }
+        ]
+      },
+      "postcss-flexbugs-fixes": {},
+      "postcss-flexibility": {}
+    }
+  },
+  "pugLintConfig": {
+    "disallowDuplicateAttributes": true,
+    "disallowIdAttributeWithStaticValue": true,
+    "disallowMultipleLineBreaks": true,
+    "requireClassLiteralsBeforeAttributes": true,
+    "requireIdLiteralsBeforeAttributes": true,
+    "requireLineFeedAtFileEnd": true,
+    "requireLowerCaseAttributes": true,
+    "requireLowerCaseTags": true,
+    "requireSpaceAfterCodeOperator": true,
+    "requireStrictEqualityOperators": true,
+    "validateAttributeQuoteMarks": "'",
+    "validateAttributeSeparator": {
+      "separator": ", ",
+      "multiLineSeparator": "\n  "
+    },
+    "validateDivTags": true,
+    "validateIndentation": 2,
+    "excludeFiles": [
+      "node_modules/**"
+    ]
+  }
+}

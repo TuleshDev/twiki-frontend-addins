@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node dev",
     "build": "webpack --profile --config dev/webpack/webpack.prod.js",
+    "prepack": "node dev/pack/prepack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
