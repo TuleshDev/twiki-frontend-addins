@@ -23,7 +23,7 @@ fs.emptyDirSync(path.join(process.cwd(), 'assets'))
 
 module.exports = {
   mode: 'development',
-  entry: path.join(process.cwd(), './client/themes/default/components/page-nav-tree-params.vue'),
+  entry: path.join(process.cwd(), './client/index.js'),
   output: {
     path: path.join(process.cwd(), 'assets'),
     publicPath: '/_assets/',
