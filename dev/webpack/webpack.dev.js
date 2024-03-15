@@ -32,6 +32,17 @@ module.exports = {
     library: 'twiki-frontend-addins',
     umdNamedDefine: true
   },
+  externals: {
+    vue: 'vue',
+    'vue-router': 'vue-router',
+    'vuetify/lib': 'vuetify/lib',
+    'vuetify/lib/components/VDivider': 'vuetify/lib/components/VDivider',
+    'vuetify/lib/components/VTooltip': 'vuetify/lib/components/VTooltip',
+    'vuetify/lib/components/VBtn': 'vuetify/lib/components/VBtn',
+    'vuetify/lib/components/VSwitch': 'vuetify/lib/components/VSwitch',
+    'vuetify/lib/components/VIcon': 'vuetify/lib/components/VIcon',
+    'vuex-pathify': 'vuex-pathify'
+  },
   module: {
     rules: [
       {
