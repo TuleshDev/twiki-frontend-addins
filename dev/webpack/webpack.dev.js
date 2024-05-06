@@ -205,7 +205,6 @@ module.exports = {
       'process.env.CURRENT_THEME': JSON.stringify(_.defaultTo(yargs.theme, 'default'))
     }),
     new WriteFilePlugin(),
-    new webpack.HotModuleReplacementPlugin(),
     new webpack.WatchIgnorePlugin([
       /node_modules/
     ])
