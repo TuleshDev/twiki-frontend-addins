@@ -18,14 +18,16 @@ const init = {
     console.info(chalk.yellow.bold('--- ====================== ---'))
 
     global.DEV = true
-    global.WP_CONFIG = require('./webpack/webpack.dev.js')
-    global.WP = webpack(global.WP_CONFIG)
-    global.WP_DEV = {
-      devMiddleware: require('webpack-dev-middleware')(global.WP, {
-        publicPath: global.WP_CONFIG.output.publicPath
-      }),
-      hotMiddleware: require('webpack-hot-middleware')(global.WP)
-    }
+    global.WP_CONFIGS = require('./webpack/webpack.dev.js')
+    global.WP_CONFIGS.forEach(config => {
+      global.WP = webpack(config)
+      global.WP_DEV = {
+        devMiddleware: require('webpack-dev-middleware')(global.WP, {
+          publicPath: config.output.publicPath
+        }),
+        hotMiddleware: require('webpack-hot-middleware')(global.WP)
+      }
+    })
     /*
     global.WP_DEV.devMiddleware.waitUntilValid(() => {
       console.info(chalk.yellow.bold('>>> Starting Wiki.js in DEVELOPER mode...'))

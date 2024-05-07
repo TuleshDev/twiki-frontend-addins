@@ -1,8 +1,8 @@
 {
   "name": "twiki-frontend-addins",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Addins for twiki frontend",
-  "main": "assets/twiki-frontend-addins.js",
+  "main": "assets/twiki-frontend-addins.min.js",
   "scripts": {
     "dev": "node dev",
     "build": "webpack --profile --config dev/webpack/webpack.prod.js",

@@ -1,4 +1,5 @@
 const webpack = require('webpack')
+const { merge } = require('webpack-merge')
 const path = require('path')
 const fs = require('fs-extra')
 const yargs = require('yargs').argv
@@ -11,7 +12,6 @@ const HtmlWebpackPugPlugin = require('html-webpack-pug-plugin')
 const MomentTimezoneDataPlugin = require('moment-timezone-data-webpack-plugin')
 const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
 const WriteFilePlugin = require('write-file-webpack-plugin')
-const WebpackBarPlugin = require('webpackbar')
 
 const babelConfig = fs.readJsonSync(path.join(process.cwd(), '.babelrc'))
 const cacheDir = '.webpack-cache/cache'
@@ -21,13 +21,11 @@ process.noDeprecation = true
 
 fs.emptyDirSync(path.join(process.cwd(), 'assets'))
 
-module.exports = {
+var config = {
   mode: 'development',
-  entry: path.join(process.cwd(), './client/index.js'),
   output: {
     path: path.join(process.cwd(), 'assets'),
     publicPath: '/_assets/',
-    filename: 'twiki-frontend-addins.js',
     libraryTarget: 'umd',
     library: 'twiki-frontend-addins',
     umdNamedDefine: true
@@ -197,9 +195,6 @@ module.exports = {
       endYear: (new Date().getFullYear()) + 5
     }),
     new HtmlWebpackPugPlugin(),
-    new WebpackBarPlugin({
-      name: 'Client Assets'
-    }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('development'),
       'process.env.CURRENT_THEME': JSON.stringify(_.defaultTo(yargs.theme, 'default'))
@@ -249,3 +244,18 @@ module.exports = {
   target: 'web',
   watch: true
 }
+
+module.exports = [
+  merge(config, {
+    entry: path.join(process.cwd(), './client/plugin.js'),
+    output: {
+      filename: 'twiki-frontend-addins.min.js'
+    }
+  }),
+  merge(config, {
+    entry: path.join(process.cwd(), './client/index.js'),
+    output: {
+      filename: 'twiki-frontend-addins.js'
+    }
+  })
+]
