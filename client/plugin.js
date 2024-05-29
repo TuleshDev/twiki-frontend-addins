@@ -1,4 +1,9 @@
 import components from'./components'
+import {
+  adminGeneralNavTreeParamsQuery,
+  adminGeneralNavTreeParamsMutation1,
+  adminGeneralNavTreeParamsMutation2
+} from './components/admin/admin-general-nav-tree-params.vue'
 
 const plugin = {
   install (Vue) {
@@ -12,3 +17,8 @@ const plugin = {
 }
 
 export default plugin
+export {
+  adminGeneralNavTreeParamsQuery,
+  adminGeneralNavTreeParamsMutation1,
+  adminGeneralNavTreeParamsMutation2
+}
