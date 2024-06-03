@@ -7,17 +7,34 @@
             v-icon(color='grey') mdi-text-box-plus
         span {{$t('common:header.newSubpage')}}
     v-divider(vertical)
+
+    page-selector(mode='create', v-model='newSubpageModal', :open-handler='subpageNewCreate', :locale='locale')
 </template>
 
 <script>
+import { get } from 'vuex-pathify'
+
 export default {
   name: 'NavHeaderTreeParams',
+  data() {
+    return {
+      newSubpageModal: false
+    }
+  },
+  computed: {
+    locale: get('page/locale'),
+    level: get('page/level'),
+    pageId: get('page/id')
+  },
   created() {
     console.log("'nav-header-tree-params.vue' component loaded")
   },
   methods: {
     subpageNew () {
-      this.$emit('setFlag')
+      this.newSubpageModal = true
+    },
+    subpageNewCreate ({ path, locale }) {
+      window.location.assign(`/e/${locale}/${path}?level=${this.level + 1}&parentSectionId=${this.pageId}`)
     }
   }
 }
