@@ -4,6 +4,7 @@ import {
   adminGeneralNavTreeParamsMutation1,
   adminGeneralNavTreeParamsMutation2
 } from './components/admin/admin-general-nav-tree-params.vue'
+import pageStore from './store/page.js'
 
 const plugin = {
   install (Vue) {
@@ -20,5 +21,6 @@ export default plugin
 export {
   adminGeneralNavTreeParamsQuery,
   adminGeneralNavTreeParamsMutation1,
-  adminGeneralNavTreeParamsMutation2
+  adminGeneralNavTreeParamsMutation2,
+  pageStore
 }
