@@ -39,6 +39,8 @@ var config = {
     'vuetify/lib/components/VBtn': 'vuetify/lib/components/VBtn',
     'vuetify/lib/components/VSwitch': 'vuetify/lib/components/VSwitch',
     'vuetify/lib/components/VIcon': 'vuetify/lib/components/VIcon',
+    'vuetify/lib/components/VList': 'vuetify/lib/components/VList',
+    'vuetify/lib/components/VSubheader': 'vuetify/lib/components/VSubheader',
     'vuex-pathify': 'vuex-pathify'
   },
   module: {
