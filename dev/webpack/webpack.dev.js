@@ -41,6 +41,7 @@ var config = {
     'vuetify/lib/components/VIcon': 'vuetify/lib/components/VIcon',
     'vuetify/lib/components/VList': 'vuetify/lib/components/VList',
     'vuetify/lib/components/VSubheader': 'vuetify/lib/components/VSubheader',
+    'vuetify/lib/components/VTreeview': 'vuetify/lib/components/VTreeview',
     'vuex-pathify': 'vuex-pathify'
   },
   module: {
@@ -210,7 +211,19 @@ var config = {
     namedModules: true,
     namedChunks: true,
     splitChunks: {
-      chunks: 'all'
+      //chunks: 'all'
+      cacheGroups: {
+        default: {
+          minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true
+        },
+        vendor: {
+          test: /[\\/]node_modules[\\/](?![\\/]node_modules[\\/]style-loader[\\/])(?![\\/]node_modules[\\/]css-loader[\\/])/,
+          minChunks: 2,
+          priority: -10
+        }
+      }
     },
     runtimeChunk: false
   },
