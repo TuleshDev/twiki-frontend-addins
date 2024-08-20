@@ -8,7 +8,7 @@
         span {{$t('common:header.newSubpage')}}
     v-divider(vertical)
 
-    page-selector(mode='create', v-model='newSubpageModal', :open-handler='subpageNewCreate', :locale='locale')
+    page-selector(mode='create', v-model='newSubpageModal', :open-handler='subpageNewCreate', :locale='locale', :path='parentSectionPath', :isSubpage='true')
 </template>
 
 <script>
@@ -24,7 +24,8 @@ export default {
   computed: {
     locale: get('page/locale'),
     level: get('page/level'),
-    pageId: get('page/id')
+    parentSectionId: get('page/id'),
+    parentSectionPath: get('page/path')
   },
   created() {
     console.log("'nav-header-tree-params.vue' component loaded")
@@ -34,7 +35,7 @@ export default {
       this.newSubpageModal = true
     },
     subpageNewCreate ({ path, locale }) {
-      window.location.assign(`/e/${locale}/${path}?level=${this.level + 1}&parentSectionId=${this.pageId}`)
+      window.location.assign(`/e/${locale}/${path}?level=${this.level + 1}&parentSectionId=${this.parentSectionId}`)
     }
   }
 }
