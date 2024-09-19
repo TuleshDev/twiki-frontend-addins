@@ -42,7 +42,8 @@ var config = {
     'vuetify/lib/components/VList': 'vuetify/lib/components/VList',
     'vuetify/lib/components/VSubheader': 'vuetify/lib/components/VSubheader',
     'vuetify/lib/components/VTreeview': 'vuetify/lib/components/VTreeview',
-    'vuex-pathify': 'vuex-pathify'
+    'vuex-pathify': 'vuex-pathify',
+    'lodash': 'lodash'
   },
   module: {
     rules: [
