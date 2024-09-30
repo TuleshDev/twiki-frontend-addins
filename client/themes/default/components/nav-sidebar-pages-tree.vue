@@ -14,27 +14,29 @@
       //    v-icon(v-else small) {{ item.c }}
       //  v-list-item-title {{ item.l }}
       v-treeview(
-        v-if='item.k === `link`'
-        v-model='tree'
-        :items='items1'
-        :opened='initiallyOpen'
-        item-key='name'
+        :active.sync='currentNode'
+        :open.sync='openNodes'
+        :items='tree'
+        :load-children='fetchPages'
+        dense
+        expand-icon='mdi-menu-down-outline'
+        item-id='path'
         activatable
-        open-on-click
+        hoverable
         style='min-height: 30px;'
         )
         template(v-slot:prepend='{ item, open }')
           v-list-item(
-            v-if='item.k === `link`'
-            :href='item.t'
-            :target='item.y === `externalblank` ? `_blank` : `_self`'
-            :rel='item.y === `externalblank` ? `noopener` : ``'
+            :href='item.level === 0 ? item.t : `/` + item.locale + `/` + item.path'
+            :target='item.level === 0 ? (item.y === `externalblank` ? `_blank` : `_self`) : `_self`'
+            :rel='item.level === 0 ? (item.y === `externalblank` ? `noopener` : ``) : ``'
             style='min-height: 30px;'
             )
             v-list-item-avatar(size='18', tile, :style='`padding-left: 0px; width: auto; margin: 0 5px 0 0;`')
-              v-icon(v-if='item.c.match(/fa[a-z] fa-/)', size='19') {{ item.c }}
-              v-icon(v-else small) {{ item.c }}
-            v-list-item-title {{ item.l }}
+              v-icon(v-if='item.level === 0 && item.c.match(/fa[a-z] fa-/)', size='19') {{ item.c }}
+              v-icon(v-else-if='item.level === 0' small) {{ item.c }}
+              v-icon(v-else small) mdi-chevron-right
+            v-list-item-title {{ getItemTitle(item) }}
     //-> Browse
     template(v-if='mode === `browse`')
       //v-list-item(:href='`/` + item.locale + `/` + item.path', :key='`childpage-` + item.id', :input-value='path === item.path', style='min-height: 30px;')
@@ -54,7 +56,7 @@
         style='min-height: 30px;'
         )
         template(v-slot:prepend='{ item, open }')
-          v-list-item(:href='`/` + item.locale + `/` + item.path', :key='`childpage-` + item.id', :input-value='path === item.path', style='min-height: 30px;')
+          v-list-item(:href='`/` + item.locale + `/` + item.path', :key='`childsubpage-` + item.id', :input-value='path === item.path', style='min-height: 30px;')
             v-list-item-avatar(size='18', :style='`padding-left: 0px; width: auto; margin: 0 5px 0 0;`')
               v-icon(small) mdi-text-box
             v-list-item-title {{ item.title }}
@@ -76,14 +78,27 @@ export default {
     },
     path: {
       type: String
+    },
+    locale: {
+      type: String
     }
   },
   data() {
     return {
-      initiallyOpen: ['public'],
       currentNode: [0],
       openNodes: [0],
-      tree: [
+      tree: this.mode === 'custom' ? [
+        {
+          id: 0,
+          k: this.item.k,
+          t: this.item.t,
+          y: this.item.y,
+          c: this.item.c,
+          l: this.item.l,
+          level: 0,
+          children: []
+        }
+      ] : [
         {
           id: 0,
           title: this.item.title,
@@ -92,59 +107,6 @@ export default {
         }
       ],
       all: []
-    }
-  },
-  computed: {
-    items1() {
-      return [
-        {
-          k: this.item.k,
-          t: this.item.t,
-          y: this.item.y,
-          c: this.item.c,
-          l: this.item.l
-        },
-        {
-          k: this.item.k,
-          t: this.item.t,
-          y: this.item.y,
-          c: this.item.c,
-          l: this.item.l,
-          children: [
-            {
-              k: this.item.k,
-              t: this.item.t,
-              y: this.item.y,
-              c: this.item.c,
-              l: this.item.l
-            }
-          ]
-        }
-      ]
-    },
-    items2() {
-      return [
-        {
-          id: this.item.id,
-          locale: this.item.locale,
-          path: this.item.path,
-          title: this.item.title
-        },
-        {
-          id: this.item.id,
-          locale: this.item.locale,
-          path: this.item.path,
-          title: this.item.title,
-          children: [
-            {
-              id: this.item.id,
-              locale: this.item.locale,
-              path: this.item.path,
-              title: this.item.title
-            }
-          ]
-        }
-      ]
     }
   },
   watch: {
@@ -172,8 +134,36 @@ export default {
     }
   },
   methods: {
+    getItemTitle (item) {
+      if (item.level === 0) {
+        return item.l
+      } else {
+        let i = item.path.lastIndexOf(`/`)
+        if (i !== -1 && i + 1 < item.path.length) {
+          return item.path.substring(i + 1)
+        } else {
+          return item.title
+        }
+      }
+    },
     async fetchPages (item) {
       this.$store.commit(`loadingStart`, 'browse-load')
+      let path = null
+      let locale = null
+      if (this.mode === 'custom' && item.id === 0) {
+        if (item.t === '/' && item.y === 'home') {
+          path = item.y
+        } else {
+          path = this.item.t.indexOf(`/` + this.locale + `/`) === 0 ? this.item.t.substring((`/` + this.locale + `/`).length) : this.item.t
+        }
+      } else {
+        path = item.path
+      }
+      if (this.mode === 'custom') {
+        locale = this.locale
+      } else {
+        locale = item.locale
+      }
       let resp = null
       if (item.id !== 0) {
         resp = await this.$apollo.query({
@@ -195,7 +185,7 @@ export default {
           fetchPolicy: 'cache-first',
           variables: {
             parent: item.id,
-            locale: item.locale
+            locale: locale
           }
         })
       } else {
@@ -203,7 +193,7 @@ export default {
           query: gql`
             query ($path: String, $locale: String!) {
               pages {
-                subtree(path: $path, locale: $locale) {
+                subtree(path: $path, pageWithPathAsParent: true, locale: $locale) {
                   id
                   path
                   title
@@ -217,12 +207,15 @@ export default {
           `,
           fetchPolicy: 'cache-first',
           variables: {
-            path: item.path,
-            locale: item.locale
+            path: path,
+            locale: locale
           }
         })
       }
       const items = _.get(resp, 'data.pages.subtree', [])
+      if (this.mode === 'custom' && item.id === 0) {
+        item.id = _.find(items, ['path', path]).id
+      }
       const itemPages = _.filter(items, j => j.parent === item.id).map(f => ({...f, children: []}))
       if (itemPages.length > 0) {
         item.children = itemPages
