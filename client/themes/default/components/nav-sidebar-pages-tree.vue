@@ -27,14 +27,16 @@
         )
         template(v-slot:prepend='{ item, open }')
           v-list-item(
-            :href='item.level === 0 ? item.t : `/` + item.locale + `/` + item.path'
-            :target='item.level === 0 ? (item.y === `externalblank` ? `_blank` : `_self`) : `_self`'
-            :rel='item.level === 0 ? (item.y === `externalblank` ? `noopener` : ``) : ``'
+            :href='item.top ? topItem.t : `/` + item.locale + `/` + item.path'
+            :target='item.top ? (topItem.y === `externalblank` ? `_blank` : `_self`) : `_self`'
+            :rel='item.top ? (topItem.y === `externalblank` ? `noopener` : ``) : ``'
+            :key='`customchildsubpage-` + item.id'
+            :input-value='isInputValue(item)'
             style='min-height: 30px;'
             )
             v-list-item-avatar(size='18', tile, :style='`padding-left: 0px; width: auto; margin: 0 5px 0 0;`')
-              v-icon(v-if='item.level === 0 && item.c.match(/fa[a-z] fa-/)', size='19') {{ item.c }}
-              v-icon(v-else-if='item.level === 0' small) {{ item.c }}
+              v-icon(v-if='item.top && topItem.k === `link` && topItem.c.match(/fa[a-z] fa-/)', size='19') {{ topItem.c }}
+              v-icon(v-else-if='item.top && topItem.k === `link`' small) {{ topItem.c }}
               v-icon(v-else small) mdi-chevron-right
             v-list-item-title {{ getItemTitle(item) }}
     //-> Browse
@@ -56,10 +58,10 @@
         style='min-height: 30px;'
         )
         template(v-slot:prepend='{ item, open }')
-          v-list-item(:href='`/` + item.locale + `/` + item.path', :key='`childsubpage-` + item.id', :input-value='path === item.path', style='min-height: 30px;')
+          v-list-item(:href='`/` + item.locale + `/` + item.path', :key='`browsechildsubpage-` + item.id', :input-value='isInputValue(item)', style='min-height: 30px;')
             v-list-item-avatar(size='18', :style='`padding-left: 0px; width: auto; margin: 0 5px 0 0;`')
               v-icon(small) mdi-text-box
-            v-list-item-title {{ item.title }}
+            v-list-item-title {{ getItemTitle(item) }}
 </template>
 
 <script>
@@ -73,11 +75,11 @@ export default {
       type: String,
       default: 'custom'
     },
-    item: {
-      type: Object
-    },
-    path: {
+    currentPath: {
       type: String
+    },
+    topItem: {
+      type: Object
     },
     locale: {
       type: String
@@ -86,27 +88,27 @@ export default {
   data() {
     return {
       currentNode: [0],
-      openNodes: [0],
+      openNodes: [],
       tree: this.mode === 'custom' ? [
         {
           id: 0,
-          k: this.item.k,
-          t: this.item.t,
-          y: this.item.y,
-          c: this.item.c,
-          l: this.item.l,
-          level: 0,
+          title: this.getItemTitle(this.topItem),
+          locale: this.getItemLocale(this.topItem),
+          path: this.getItemPath(this.topItem),
+          top: true,
           children: []
         }
       ] : [
         {
           id: 0,
-          title: this.item.title,
-          locale: this.item.locale,
+          title: this.getItemTitle(this.topItem),
+          locale: this.getItemLocale(this.topItem),
+          path: this.getItemPath(this.topItem),
           children: []
         }
       ],
-      all: []
+      all: [],
+      trackInSubtree: null
     }
   },
   watch: {
@@ -135,35 +137,87 @@ export default {
   },
   methods: {
     getItemTitle (item) {
-      if (item.level === 0) {
-        return item.l
-      } else {
-        let i = item.path.lastIndexOf(`/`)
-        if (i !== -1 && i + 1 < item.path.length) {
-          return item.path.substring(i + 1)
+      if (this.mode === 'custom') {
+        if (!item || item.id === 0 || item === this.topItem || item.top) {
+          return this.topItem.l
         } else {
-          return item.title
+          let i = item.path.lastIndexOf(`/`)
+          if (i !== -1 && i + 1 < item.path.length) {
+            return item.path.substring(i + 1)
+          } else {
+            return item.title
+          }
+        }
+      } else {
+        return item.title
+      }
+    },
+    getItemPath (item) {
+      if (this.mode === 'custom') {
+        if (!item || item.id === 0 || item === this.topItem || item.top) {
+          if (this.topItem.t === '/' && this.topItem.y === 'home') {
+            return this.topItem.y
+          } else {
+            return this.topItem.t.indexOf(`/` + this.locale + `/`) === 0 ? this.topItem.t.substring((`/` + this.locale + `/`).length) : this.topItem.t
+          }
+        } else {
+          return item.path
+        }
+      } else {
+        if (!item) {
+          if (this.currentPath) {
+            return this.currentPath
+          } else {
+            return this.topItem.path
+          }
+        } else {
+          return item.path
         }
       }
     },
+    getItemLocale (item) {
+      if (this.mode === 'custom') {
+        return this.locale
+      } else {
+        return item.locale
+      }
+    },
+    isInputValue (item) {
+      if (item.path === this.currentPath) {
+        return true
+      } else {
+        return false
+      }
+    },
+    async getTrackInSubtree () {
+      const resp = await this.$apollo.query({
+        query: gql`
+          query ($path: String, $locale: String!) {
+            pages {
+              trackInSubtree(path: $path, locale: $locale) {
+                id
+                path
+                title
+                level
+                pageId
+                parent
+                locale
+              }
+            }
+          }
+        `,
+        fetchPolicy: 'cache-first',
+        variables: {
+          path: this.currentPath,
+          locale: this.locale
+        }
+      })
+      return _.get(resp, 'data.pages.trackInSubtree', [])
+    },
     async fetchPages (item) {
       this.$store.commit(`loadingStart`, 'browse-load')
-      let path = null
-      let locale = null
-      if (this.mode === 'custom' && item.id === 0) {
-        if (item.t === '/' && item.y === 'home') {
-          path = item.y
-        } else {
-          path = this.item.t.indexOf(`/` + this.locale + `/`) === 0 ? this.item.t.substring((`/` + this.locale + `/`).length) : this.item.t
-        }
-      } else {
-        path = item.path
-      }
-      if (this.mode === 'custom') {
-        locale = this.locale
-      } else {
-        locale = item.locale
-      }
+      const path = this.getItemPath(item)
+      const locale = this.getItemLocale(item)
       let resp = null
       if (item.id !== 0) {
         resp = await this.$apollo.query({
@@ -212,8 +266,11 @@ export default {
           }
         })
       }
-      const items = _.get(resp, 'data.pages.subtree', [])
-      if (this.mode === 'custom' && item.id === 0) {
+      let items = _.get(resp, 'data.pages.subtree', [])
+      if (this.mode === 'custom') {
+        items = items.map(f => ({...f, top: false}))
+      }
+      if (item.id === 0) {
         item.id = _.find(items, ['path', path]).id
       }
       const itemPages = _.filter(items, j => j.parent === item.id).map(f => ({...f, children: []}))
@@ -228,15 +285,25 @@ export default {
     },
     async loadFromPath() {
       this.$store.commit(`loadingStart`, 'browse-load')
-      let all = []
-      let tree = []
       let openNodes = []
-      let path = null
-      if (this.path) {
-        path = this.path
-      } else {
-        path = this.item.path
+      let path = this.getItemPath(null)
+      let level0 = 0
+      if (this.mode === 'custom') {
+        const path0 = path
+        if (!this.trackInSubtree) {
+          this.trackInSubtree = await this.getTrackInSubtree()
+        }
+        const item0 = _.find(this.trackInSubtree, ['path', path0])
+        if (!item0) {
+          this.tree[0].children = []
+          this.currentNode = [0]
+          this.$store.commit(`loadingStop`, 'browse-load')
+          return
+        }
+        level0 = item0.level
+        path = this.currentPath
       }
+      const locale = this.getItemLocale(this.topItem)
       const resp = await this.$apollo.query({
         query: gql`
           query ($path: String, $locale: String!) {
@@ -256,21 +323,24 @@ export default {
         fetchPolicy: 'cache-first',
         variables: {
           path: path,
-          locale: this.item.locale
+          locale: locale
         }
       })
-      const items = _.get(resp, 'data.pages.subtree', []).map(f => ({...f, children: []}))
+      let items = _.get(resp, 'data.pages.subtree', []).map(f => ({...f, children: []}))
+      if (this.mode === 'custom') {
+        items = items.map(f => ({...f, top: false}))
+      }
       const curPage = _.find(items, ['path', path])
       if (!curPage) {
-        console.warn("Could not find the page with id = '" + this.item.pageId + "' in page subtree listing!")
+        console.warn("Could not find the page with path = '" + path + "' in page subtree listing!")
         return
       }
       const level = curPage.level
       let item = null
       let itemId = null
       let previousItem = null
-      for (let i = 0; i < level + 1; i++) {
-        if (i === 0) {
+      for (let i = level0; i < level + 1; i++) {
+        if (i === level0) {
           itemId = curPage.id
           item = _.find(items, {
             id: itemId
@@ -282,30 +352,38 @@ export default {
           })
         }
         if (i === level) {
-          tree.push(item)
+          if (this.tree[0].id === 0) {
+            this.tree[0].id = item.id
+            this.tree[0].path = item.path
+            this.tree[0].level = item.level
+            this.tree[0].pageId = item.pageId
+            this.tree[0].parent = item.parent
+            this.tree[0].locale = item.locale
+            item = this.tree[0]
+          }
+          if (this.mode === 'custom') {
+            item.top = true
+          }
         }
-        openNodes.push(itemId)
+        if (i !== level0) {
+          openNodes.push(itemId)
+        }
         const itemPages = _.filter(items, j => j.parent === item.id)
         if (itemPages.length > 0) {
           item.children = itemPages
-        } else if (i !== 0) {
+        } else if (i !== level0) {
           item.children = undefined
         }
         previousItem = item
-        all = _.unionBy(all, items, 'id')
       }
-      this.all = all
-      this.tree = tree
-      this.currentNode = [curPage.id]
+      this.all = _.unionBy(this.all, items, 'id')
       this.openNodes = openNodes.reverse()
 
       this.$store.commit(`loadingStop`, 'browse-load')
     }
   },
   mounted () {
-    if (this.mode === 'browse') {
-      this.loadFromPath()
-    }
+    this.loadFromPath()
   }
 }
 </script>
