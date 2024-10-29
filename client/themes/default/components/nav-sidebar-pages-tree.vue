@@ -65,8 +65,8 @@
 </template>
 
 <script>
-const _ = require('lodash')
 import gql from 'graphql-tag'
+const _ = require('lodash')
 
 export default {
   name: 'NavSidebarPagesTree',
@@ -76,13 +76,16 @@ export default {
       default: 'custom'
     },
     currentPath: {
-      type: String
+      type: String,
+      default: ''
     },
     topItem: {
-      type: Object
+      type: Object,
+      default: null
     },
     locale: {
-      type: String
+      type: String,
+      default: 'en'
     }
   },
   data() {
@@ -108,7 +111,8 @@ export default {
         }
       ],
       all: [],
-      trackInSubtree: null
+      trackInSubtree: null,
+      condition: true
     }
   },
   watch: {
@@ -279,6 +283,14 @@ export default {
       } else {
         item.children = undefined
       }
+      if (this.condition) {
+        _.forEach(itemPages, item2 => {
+          const item2Pages = _.filter(items, j => j.parent === item2.id).map(f => ({...f, children: []}))
+          if (item2Pages.length === 0) {
+            item2.children = undefined
+          }
+        })
+      }
       this.all = _.unionBy(this.all, items, 'id')
 
       this.$store.commit(`loadingStop`, 'browse-load')
@@ -335,46 +347,87 @@ export default {
         console.warn("Could not find the page with path = '" + path + "' in page subtree listing!")
         return
       }
-      const level = curPage.level
+      let level = curPage.level
       let item = null
       let itemId = null
       let previousItem = null
-      for (let i = level0; i < level + 1; i++) {
-        if (i === level0) {
-          itemId = curPage.id
-          item = _.find(items, {
-            id: itemId
-          })
-        } else {
-          itemId = previousItem.parent
-          item = _.find(items, {
-            id: itemId
-          })
-        }
-        if (i === level) {
-          if (this.tree[0].id === 0) {
-            this.tree[0].id = item.id
-            this.tree[0].path = item.path
-            this.tree[0].level = item.level
-            this.tree[0].pageId = item.pageId
-            this.tree[0].parent = item.parent
-            this.tree[0].locale = item.locale
-            item = this.tree[0]
+      let parentId = null
+      if (!this.condition) {
+        for (let i = level0; i < level + 1; i++) {
+          if (i === level0) {
+            itemId = curPage.id
+            item = _.find(items, {
+              id: itemId
+            })
+          } else {
+            itemId = previousItem.parent
+            item = _.find(items, {
+              id: itemId
+            })
           }
-          if (this.mode === 'custom') {
-            item.top = true
+          if (i === level) {
+            if (this.tree[0].id === 0) {
+              this.tree[0].id = itemId
+              this.tree[0].path = item.path
+              this.tree[0].level = item.level
+              this.tree[0].pageId = item.pageId
+              this.tree[0].parent = item.parent
+              this.tree[0].locale = item.locale
+              item = this.tree[0]
+            }
+            if (this.mode === 'custom') {
+              item.top = true
+            }
           }
+          if (i !== level0) {
+            openNodes.push(itemId)
+          }
+          const itemPages = _.filter(items, j => j.parent === itemId)
+          if (itemPages.length > 0) {
+            item.children = itemPages
+          } else if (i !== level0) {
+            item.children = undefined
+          }
+          previousItem = item
         }
-        if (i !== level0) {
-          openNodes.push(itemId)
+      } else {
+        for (let i = level0; i < level + 1; i++) {
+          let items_i = _.filter(items, j => j.level === level + level0 - i)
+          _.forEach(items_i, item => {
+            itemId = item.id
+            if (i !== level0) {
+              parentId = previousItem.parent
+            }
+            if ((i === level0 && itemId === curPage.id) || (i !== level0 && itemId === parentId)) {
+              if (i === level) {
+                if (this.tree[0].id === 0) {
+                  this.tree[0].id = itemId
+                  this.tree[0].path = item.path
+                  this.tree[0].level = item.level
+                  this.tree[0].pageId = item.pageId
+                  this.tree[0].parent = item.parent
+                  this.tree[0].locale = item.locale
+                  item = this.tree[0]
+                }
+                if (this.mode === 'custom') {
+                  item.top = true
+                }
+              }
+              if (i !== level0) {
+                openNodes.push(itemId)
+              }
+              previousItem = item
+            }
+            const itemPages = _.filter(items, j => j.parent === itemId)
+            if (itemPages.length > 0) {
+              if (i !== level0 && itemId === parentId) {
+                item.children = itemPages
+              }
+            } else {
+              item.children = undefined
+            }
+          })
         }
-        const itemPages = _.filter(items, j => j.parent === item.id)
-        if (itemPages.length > 0) {
-          item.children = itemPages
-        } else if (i !== level0) {
-          item.children = undefined
-        }
-        previousItem = item
       }
       this.all = _.unionBy(this.all, items, 'id')
       this.openNodes = openNodes.reverse()
