@@ -68,6 +68,8 @@
 import gql from 'graphql-tag'
 const _ = require('lodash')
 
+/* global siteConfig */
+
 export default {
   name: 'NavSidebarPagesTree',
   props: {
@@ -112,7 +114,7 @@ export default {
       ],
       all: [],
       trackInSubtree: null,
-      condition: true
+      featureCalculateStateOfLastNodes: siteConfig.featureCalculateStateOfLastNodes
     }
   },
   watch: {
@@ -283,7 +285,7 @@ export default {
       } else {
         item.children = undefined
       }
-      if (this.condition) {
+      if (this.featureCalculateStateOfLastNodes) {
         _.forEach(itemPages, item2 => {
           const item2Pages = _.filter(items, j => j.parent === item2.id).map(f => ({...f, children: []}))
           if (item2Pages.length === 0) {
@@ -352,7 +354,7 @@ export default {
       let itemId = null
       let previousItem = null
       let parentId = null
-      if (!this.condition) {
+      if (!this.featureCalculateStateOfLastNodes) {
         for (let i = level0; i < level + 1; i++) {
           if (i === level0) {
             itemId = curPage.id

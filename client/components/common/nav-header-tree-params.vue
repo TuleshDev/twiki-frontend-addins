@@ -3,9 +3,9 @@
     div
       v-tooltip(bottom)
         template(v-slot:activator='{ on }')
-          v-btn(icon, tile, height='64', v-on='on', @click='subpageNew', :aria-label='$t(`common:header.newSubpage`)')
+          v-btn(icon, tile, height='64', v-on='on', @click='subpageNew', :aria-label='$t(`common:headerTreeParams.newSubpage`)')
             v-icon(color='grey') mdi-text-box-plus
-        span {{$t('common:header.newSubpage')}}
+        span {{$t('common:headerTreeParams.newSubpage')}}
     v-divider(vertical)
 
     page-selector(mode='create', v-model='newSubpageModal', :open-handler='subpageNewCreate', :locale='locale', :path='parentSectionPath', :isSubpage='true')

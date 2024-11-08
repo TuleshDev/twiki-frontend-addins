@@ -1,26 +1,41 @@
 <template lang='pug'>
-  .mt-3
-    v-switch.mt-0(
-      inset
-      label='Tree Navigation'
-      color='indigo'
-      v-model='config.featurePageTreeNavigation'
-      persistent-hint
-      hint='Allow users to use tree navigation.'
-      )
+  div
+    v-divider
+    .overline.grey--text.pa-4 {{$t('admin:generalNavTreeParams.navigation')}}
+    .px-4.pb-3
+      v-switch.mt-0(
+        inset
+        :label='$t(`admin:generalNavTreeParams.treeNavigation`)'
+        color='indigo'
+        v-model='config.featurePageTreeNavigation'
+        persistent-hint
+        :hint='$t(`admin:generalNavTreeParams.treeNavigationHint`)'
+        )
+      v-switch.mt-4(
+        v-if='config.featurePageTreeNavigation'
+        inset
+        :label='$t(`admin:generalNavTreeParams.calculateStateOfLastNodes`)'
+        color='indigo'
+        v-model='config.featureCalculateStateOfLastNodes'
+        persistent-hint
+        :hint='$t(`admin:generalNavTreeParams.calculateStateOfLastNodesHint`)'
+        )
 </template>
 
 <script>
 export const adminGeneralNavTreeParamsQuery = () => {
-  return 'featurePageTreeNavigation'
+  return `featurePageTreeNavigation
+    featureCalculateStateOfLastNodes`
 }
 
 export const adminGeneralNavTreeParamsMutation1 = () => {
-  return '$featurePageTreeNavigation: Boolean'
+  return `$featurePageTreeNavigation: Boolean
+    $featureCalculateStateOfLastNodes: Boolean`
 }
 
 export const adminGeneralNavTreeParamsMutation2 = () => {
-  return 'featurePageTreeNavigation: $featurePageTreeNavigation'
+  return `featurePageTreeNavigation: $featurePageTreeNavigation
+    featureCalculateStateOfLastNodes: $featureCalculateStateOfLastNodes`
 }
 
 export default {
@@ -36,7 +51,8 @@ export default {
   computed: {
     variables() {
       return {
-        featurePageTreeNavigation: this.config.featurePageTreeNavigation
+        featurePageTreeNavigation: this.config.featurePageTreeNavigation,
+        featureCalculateStateOfLastNodes: this.config.featureCalculateStateOfLastNodes
       }
     }
   }
