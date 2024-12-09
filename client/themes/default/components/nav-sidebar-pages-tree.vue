@@ -25,9 +25,10 @@
         hoverable
         style='min-height: 30px;'
         )
-        template(v-slot:prepend='{ item, open }')
+        template(v-slot:prepend='{ item, toggle }')
           v-list-item(
             :href='item.top ? topItem.t : `/` + item.locale + `/` + item.path'
+            @click.prevent='nodeClick(item, toggle, $event)'
             :target='item.top ? (topItem.y === `externalblank` ? `_blank` : `_self`) : `_self`'
             :rel='item.top ? (topItem.y === `externalblank` ? `noopener` : ``) : ``'
             :key='`customchildsubpage-` + item.id'
@@ -57,8 +58,8 @@
         hoverable
         style='min-height: 30px;'
         )
-        template(v-slot:prepend='{ item, open }')
-          v-list-item(:href='`/` + item.locale + `/` + item.path', :key='`browsechildsubpage-` + item.id', :input-value='isInputValue(item)', style='min-height: 30px;')
+        template(v-slot:prepend='{ item, toggle }')
+          v-list-item(:href='`/` + item.locale + `/` + item.path', @click.prevent='nodeClick(item, toggle, $event)', :key='`browsechildsubpage-` + item.id', :input-value='isInputValue(item)', style='min-height: 30px;')
             v-list-item-avatar(size='18', :style='`padding-left: 0px; width: auto; margin: 0 5px 0 0;`')
               v-icon(small) mdi-text-box
             v-list-item-title {{ getItemTitle(item) }}
@@ -219,6 +220,13 @@ export default {
         }
       })
       return _.get(resp, 'data.pages.trackInSubtree', [])
+    },
+    nodeClick(item, toggle, event) {
+      //event.preventDefault()
+      event.stopPropagation()
+
+      const href = event.currentTarget.getAttribute('href')
+      window.location.assign(href)
     },
     async fetchPages (item) {
       this.$store.commit(`loadingStart`, 'browse-load')

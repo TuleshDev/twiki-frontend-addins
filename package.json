@@ -1,6 +1,6 @@
 {
   "name": "twiki-frontend-addins",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "Addins for twiki frontend",
   "main": "assets/twiki-frontend-addins.min.js",
   "scripts": {
