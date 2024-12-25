@@ -44,6 +44,7 @@ const state = {
   commentsCount: 0,
   level: 0,
   parentSectionId: 0,
+  order: 0,
   editShortcuts: {
     editFab: false,
     editMenuBar: false,

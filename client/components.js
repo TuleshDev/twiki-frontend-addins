@@ -3,13 +3,15 @@ import Vue from 'vue'
 import AdminGeneralNavTreeParams from './components/admin/admin-general-nav-tree-params.vue'
 import NavHeaderTreeParams from './components/common/nav-header-tree-params.vue'
 import NavSidebarPagesTree from './themes/default/components/nav-sidebar-pages-tree.vue'
-import EditorNavTreeParams from './components/editor/editor-nav-tree-params.vue'
-import PageNavTreeParams from './themes/default/components/page-nav-tree-params.vue'
+import EditorAdditionalParams from './components/editor/editor-additional-params.vue'
+import EditorModalPropertiesOrder from './components/editor/editor-modal-properties-order.vue'
+import PageAdditionalParams from './themes/default/components/page-additional-params.vue'
 
 export default {
   AdminGeneralNavTreeParams,
   NavHeaderTreeParams,
   NavSidebarPagesTree,
-  EditorNavTreeParams,
-  PageNavTreeParams
+  EditorAdditionalParams,
+  EditorModalPropertiesOrder,
+  PageAdditionalParams
 }
