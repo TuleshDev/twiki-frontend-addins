@@ -45,9 +45,6 @@ export default {
       type: Object
     }
   },
-  created() {
-    console.log("'admin-general-nav-tree-params.vue' component loaded")
-  },
   computed: {
     variables() {
       return {

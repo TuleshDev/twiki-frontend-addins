@@ -27,9 +27,6 @@ export default {
     parentSectionId: get('page/id'),
     parentSectionPath: get('page/path')
   },
-  created() {
-    console.log("'nav-header-tree-params.vue' component loaded")
-  },
   methods: {
     subpageNew () {
       this.newSubpageModal = true

@@ -18,11 +18,6 @@ export default {
     this.$store.set('page/level', level)
     this.$store.set('page/parentSectionId', parentSectionId)
     this.$store.set('page/order', order)
-
-    console.log("'page-additional-params.vue' component loaded")
-    console.log(level + ' - level')
-    console.log(parentSectionId + ' - parentSectionId')
-    console.log(order + ' - order')
   }
 }
 </script>

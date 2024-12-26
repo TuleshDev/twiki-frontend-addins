@@ -52,8 +52,6 @@ export default {
     }
 
     this.$store.set('page/order', this.additionalParams.order)
-
-    console.log("'editor-additional-params.vue' component loaded")
   }
 }
 </script>

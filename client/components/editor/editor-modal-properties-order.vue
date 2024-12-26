@@ -56,9 +56,6 @@ export default {
       }
     }
   },
-  created() {
-    console.log("'editor-modal-properties-order.vue' component loaded")
-  },
   methods: {
     setCursorPosition(event) {
       this.cursorPosition = event.target.selectionStart;
