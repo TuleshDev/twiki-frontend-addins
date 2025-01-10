@@ -1,13 +1,13 @@
 {
   "name": "twiki-frontend-addins",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "description": "Addins for twiki frontend",
   "main": "assets/twiki-frontend-addins.min.js",
   "scripts": {
     "dev": "node dev",
     "build": "webpack --profile --config dev/webpack/webpack.prod.js",
     "postpack": "node dev/pack/postpack",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "eslint --format codeframe --ext .js,.vue . && pug-lint server/views && jest"
   },
   "repository": {
     "type": "git",

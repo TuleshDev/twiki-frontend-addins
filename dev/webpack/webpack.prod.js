@@ -1,4 +1,5 @@
 const webpack = require('webpack')
+const { merge } = require('webpack-merge')
 const path = require('path')
 const fs = require('fs-extra')
 const yargs = require('yargs').argv
@@ -14,7 +15,6 @@ const MomentTimezoneDataPlugin = require('moment-timezone-data-webpack-plugin')
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin')
 const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
-const WebpackBarPlugin = require('webpackbar')
 
 const now = Math.round(Date.now() / 1000)
 
@@ -26,20 +26,31 @@ process.noDeprecation = true
 
 fs.emptyDirSync(path.join(process.cwd(), 'assets'))
 
-module.exports = {
+var config = {
   mode: 'production',
-  entry: {
-    app: './client/index-app.js',
-    legacy: './client/index-legacy.js',
-    setup: './client/index-setup.js'
-  },
   output: {
     path: path.join(process.cwd(), 'assets'),
     publicPath: '/_assets/',
-    filename: `js/[name].js?${now}`,
-    chunkFilename: `js/[name].js?${now}`,
-    globalObject: 'this',
-    crossOriginLoading: 'use-credentials'
+    libraryTarget: 'umd',
+    library: 'twiki-frontend-addins',
+    umdNamedDefine: true
+  },
+  externals: {
+    vue: 'vue',
+    'vue-router': 'vue-router',
+    'vuetify/lib': 'vuetify/lib',
+    'vuetify/lib/components/VBtn': 'vuetify/lib/components/VBtn',
+    'vuetify/lib/components/VDivider': 'vuetify/lib/components/VDivider',
+    'vuetify/lib/components/VGrid': 'vuetify/lib/components/VGrid',
+    'vuetify/lib/components/VIcon': 'vuetify/lib/components/VIcon',
+    'vuetify/lib/components/VList': 'vuetify/lib/components/VList',
+    'vuetify/lib/components/VSubheader': 'vuetify/lib/components/VSubheader',
+    'vuetify/lib/components/VSwitch': 'vuetify/lib/components/VSwitch',
+    'vuetify/lib/components/VTextField': 'vuetify/lib/components/VTextField',
+    'vuetify/lib/components/VTooltip': 'vuetify/lib/components/VTooltip',
+    'vuetify/lib/components/VTreeview': 'vuetify/lib/components/VTreeview',
+    'vuex-pathify': 'vuex-pathify',
+    'lodash': 'lodash'
   },
   module: {
     rules: [
@@ -197,44 +208,10 @@ module.exports = {
       startYear: 2017,
       endYear: (new Date().getFullYear()) + 5
     }),
-    new CopyWebpackPlugin({
-      patterns: [
-        { from: 'client/static' },
-        { from: './node_modules/prismjs/components', to: 'js/prism' }
-      ]
-    }),
-    new MiniCssExtractPlugin({
-      filename: 'css/bundle.[hash].css',
-      chunkFilename: 'css/[name].[chunkhash].css'
-    }),
-    new HtmlWebpackPlugin({
-      template: 'dev/templates/master.pug',
-      filename: '../server/views/master.pug',
-      hash: false,
-      inject: false,
-      excludeChunks: ['setup', 'legacy']
-    }),
-    new HtmlWebpackPlugin({
-      template: 'dev/templates/legacy.pug',
-      filename: '../server/views/legacy/master.pug',
-      hash: false,
-      inject: false,
-      excludeChunks: ['setup', 'app']
-    }),
-    new HtmlWebpackPlugin({
-      template: 'dev/templates/setup.pug',
-      filename: '../server/views/setup.pug',
-      hash: false,
-      inject: false,
-      excludeChunks: ['app', 'legacy']
-    }),
     new HtmlWebpackPugPlugin(),
     new ScriptExtHtmlWebpackPlugin({
       sync: 'runtime.js',
       defaultAttribute: 'async'
-    }),
-    new WebpackBarPlugin({
-      name: 'Client Assets'
     }),
     new CleanWebpackPlugin(),
     new OptimizeCssAssetsPlugin({
@@ -253,10 +230,11 @@ module.exports = {
     namedModules: true,
     namedChunks: true,
     splitChunks: {
+      //chunks: 'all'
       name: 'vendor',
       minChunks: 2
     },
-    runtimeChunk: 'single'
+    runtimeChunk: false
   },
   resolve: {
     mainFields: ['browser', 'main', 'module'],
@@ -289,3 +267,18 @@ module.exports = {
   },
   target: 'web'
 }
+
+module.exports = [
+  merge(config, {
+    entry: path.join(process.cwd(), './client/plugin.js'),
+    output: {
+      filename: 'twiki-frontend-addins.min.js'
+    },
+    plugins: [
+      new MiniCssExtractPlugin({
+        filename: 'css/twiki-frontend-addins.min.css',
+        chunkFilename: 'css/[name].css'
+      }),
+    ]
+  })
+]
